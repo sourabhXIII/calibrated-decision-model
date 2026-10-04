@@ -1,0 +1,11 @@
+torch 2.11.0+cu130 | D=8 K=3 train=20000 test=20000 steps=3000 batch=256
+
+oracle (true W*) acc 0.735  nll 0.614  ece 0.009  KL 0.0000
+sl_hard          acc 0.729  nll 0.624  ece 0.008  KL 0.0100
+sl_brier         acc 0.729  nll 0.628  ece 0.021  KL 0.0133
+kd_true          acc 0.735  nll 0.614  ece 0.009  KL -0.0000
+kd_overconf      acc 0.735  nll 0.741  ece 0.122  KL 0.1220
+rl_gauss         acc 0.730  nll 0.622  ece 0.016  KL 0.0094
+
+per-batch cosine(RL grad, SL grad) = 0.96 ± 0.02  (1.0 = same direction)
+rl_gauss x10     acc 0.730  nll 0.622  ece 0.008  KL 0.0086

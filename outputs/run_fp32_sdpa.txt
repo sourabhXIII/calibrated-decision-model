@@ -1,0 +1,39 @@
+python 3.12.3 | torch 2.11.0+cu130 | transformers 5.12.1 | NVIDIA GB10
+model Qwen/Qwen2.5-0.5B-Instruct | dtype fp32 | attention sdpa
+
+context 58 tok | questions [18, 16, 17] tok | stacked length 109
+
+[1] First answer token: IPPD branch vs isolated run
+  Q1: isolated top token ' billing'   | max|Δlogit| IPPD 3.48e-05 (argmax same: True) | naive concat 2.38e-05 (argmax same: True)
+  Q2: isolated top token ' No'        | max|Δlogit| IPPD 6.77e-05 (argmax same: True) | naive concat 1.39e+01 (argmax same: True)
+  Q3: isolated top token ' Medium'    | max|Δlogit| IPPD 3.72e-05 (argmax same: True) | naive concat 1.50e+01 (argmax same: False)
+  -> IPPD matches isolated runs within 0.001: True
+  (Q1 is unaffected by naive concat because nothing comes before it; Q2 and Q3 read their predecessors.)
+
+[2] Typed readout (softmax over each question's label first-tokens)
+  Q1: IPPD    billing=0.744 technical=0.039 sales=0.217
+      isolated billing=0.744 technical=0.039 sales=0.217
+      naive    billing=0.744 technical=0.039 sales=0.217
+      (label tokens hold 69.4% of the full-vocabulary mass before renormalising)
+      variant-pooled billing=0.627 technical=0.099 sales=0.274 (covers 96.5% of the mass)
+  Q2: IPPD    yes=0.241 no=0.759
+      isolated yes=0.241 no=0.759
+      naive    yes=0.537 no=0.463
+      (label tokens hold 1.5% of the full-vocabulary mass before renormalising)
+      variant-pooled yes=0.178 no=0.822 (covers 97.5% of the mass)
+  Q3: IPPD    low=0.243 medium=0.545 high=0.212
+      isolated low=0.243 medium=0.545 high=0.212
+      naive    low=0.285 medium=0.006 high=0.710
+      (label tokens hold 25.2% of the full-vocabulary mass before renormalising)
+      variant-pooled low=0.239 medium=0.566 high=0.195 (covers 85.8% of the mass)
+
+[3] Parallel decode step (second answer token)
+  Q1: after ' billing'   max|Δlogit| vs isolated 4.73e-05
+  Q2: after ' No'        max|Δlogit| vs isolated 6.65e-05
+  Q3: after ' Medium'    max|Δlogit| vs isolated 4.53e-05
+
+[4] Prefill tokens processed
+  N separate calls : 225
+  naive concat     : 109 (cheap, but leaks across questions)
+  IPPD             : 109 (same tokens as naive, no leakage)
+  ratio separate / IPPD = 2.06x
