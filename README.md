@@ -1,6 +1,6 @@
 # calibrated-decision-model
 
-Code for the blog post [Building a fast, calibrated decision model from public parts, and what it can't do](https://sourabhxiii.github.io/blog/2026/calibrated-decision-model/).
+Code for the blog post [Building a fast, calibrated decision model from public parts, and what it can't do](https://sourabhxiii.github.io/blog/2026/fast-calibrated-decision-model/).
 
 Every number and figure in the post comes from these scripts.
 
